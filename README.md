@@ -77,6 +77,9 @@ Releases all data recorded or set.
 
 ### Getters and setters
 
+#### ms
+property to `get` or `set` time timestamp in milliseconds, which in turn sets the current frame. Does not begin playback.
+
 #### getData()
 Returns all data collected during recording.
 
@@ -95,7 +98,7 @@ Informs if **mus** is currently recording something.
 #### isPlaying()
 Informs if **mus** is currently playing something.
 
-### timeElapsed(in_ms)
+#### timeElapsed(in_ms)
 Length of entire recording in seconds (or in milliseconds if `in_ms` is `true`); difference in time between when recording started and stopped.
 
 # Version history
