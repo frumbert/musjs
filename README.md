@@ -11,10 +11,27 @@ This library was created so you don't need an external service to "record" your 
 
 **mus** works with any AMD you wish and its setup is extremely simple - **5.6kb**
 
+## Fork
+
+This fork has made a number of changes to suit my own purposes:
+
+* Removes tracking of input/form elements
+* Removes playback speed setting; plays at natural speed
+* Track when the mouse is down 
+* Able to set target window to track (e.g. iframe on same domain)
+* Able to cue playback from a time (in milliseconds)
+* Optional callback after frames advance
+* Records scroll-offset during clicks to avoid drift during playback
+
 ## Recording
 ```js
-// Instantiate a mus object
-var mus = new Mus();
+// Instantiate a mus object with optional parameters
+// target = window object to track
+// onupdate = callback to fire after each frame
+var mus = new Mus({
+  target: document.querySelector("iframe").contentWindow,
+  onupdate: updateTimer
+});
 
 // Start recording
 mus.record();
@@ -27,17 +44,12 @@ setTimeout(function() {
 
 ## Playing
 ```js
-// Sets playback speed (optional, default NORMAL)
-mus.setPlaybackSpeed(mus.speed.SLOW);
-
-// Starts playing and enjoy
+// Starts playing from start
 mus.play();
+
+// Starts playing from 1.5 seconds on
+mus.cue(1500);
 ```
-
-## Example
-
-
-<img height="300" src="https://i.imgur.com/GCYD9EP.gif"/>
 
 
 ## Public methods
@@ -51,7 +63,10 @@ Starts a recording session for current screen. If there is already a session rec
 Stops a recording or a playback.
 
 #### play(onfinish)
-Plays current recording session.
+Plays current recording session from the start
+
+#### cue(ms, onfinish)
+Plays the current recording session starting at `ms` milliseconds
 
 #### pause()
 Pauses current playback.
@@ -74,31 +89,19 @@ Same as `setData`, but allows only to set the `frames` array.
 #### setWindowSize(width, height)
 During recording, all data collected contains window dimensions as well, so if your recorded data comes from a different window dimension, **mus** automatically adapts to current window size. This function allows you to set a custom playback window size if you decide to use `setFrames` instead of `setData` (that already sets windows dimensions).
 
-#### setPlaybackSpeed(speed)
-Allows playback to be faster or slower.
-Default constants: `mus.speed.SLOW` (35), `mus.speed.NORMAL` (15), `mus.speed.FAST` (5)
-You may decide to use custom values as you wish.
-
-#### setTimePoint(bool)
-Records time elapsed for each point for a precise data recording.
-Default: disabled
-
 #### isRecording()
 Informs if **mus** is currently recording something.
 
 #### isPlaying()
 Informs if **mus** is currently playing something.
 
-#### isTimePoint()
-Informs if **mus** is recording time for each data point.
-
-# Roadmap
-- Detect touch movements and clicks;
-- Get form inputs;
-- Allows real clicks during setup (default false);
-- Suggestions are greatly appreciated!
+### timeElapsed(in_ms)
+Length of entire recording in seconds (or in milliseconds if `in_ms` is `true`); difference in time between when recording started and stopped.
 
 # Version history
+
+## v1.5.0
+- Forked and modded;
 
 ## v1.1.0
 - Added time point recording for precise data;
