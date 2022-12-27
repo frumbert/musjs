@@ -45,6 +45,7 @@
 		#console {
 			font-size: 10px;
 		}
+		#range { width: 100%}
 		</style>
 	</head>
 	<body>
@@ -53,18 +54,12 @@
 				<td>
 					<h1>Mus.js</h1>
 					<p>Status: <span id="status"></span></p>
-					<p>Speed: <span id="speed">Normal</span></p>
 					<br/>
 					<button id="recording" onclick="toggleRecord();">Start recording</button>
 					<button id="play" onclick="play();">Playback</button>
-					<br/>
-					<button onclick="mus.setPlaybackSpeed(mus.speed.SLOW);">Slow</button>
-					<button onclick="mus.setPlaybackSpeed(mus.speed.NORMAL);">Normal</button>
-					<button onclick="mus.setPlaybackSpeed(mus.speed.FAST);">Fast</button>
-					<br/>
-					<button id="timePoint" onclick="setTimePoint();">Enable time point</button>
-					<br/>
-					<button onclick="releaseMus();">Release</button>
+					<br>
+					<input type="range" min="0" max="100" value="0" id="range" onchange="mus.cue(this.value)">
+					<output id="ts">0</output>
 				</td>
 				<td>
 					<h2>Data console</h2>
@@ -73,95 +68,66 @@
 			</tr>
 		</table>
 
-		<div class="guide">
-			<div style="display: flex; flex-direction: column; width: 40%;">
-				<input type="text" placeholder="Type here !"/>
-				<textarea placeholder="Type here !"></textarea>
-				<div>
-					Change My Color: <input type="color" />
-				</div>
-				
-				<div>
-					Check Me:<input type="checkbox" />
-				</div>
 
-				<div>
-					Change My Date:<input type="date" />
-				</div>
+		<iframe src="iframe.html" width="75%" height="480" onload="go()"></iframe>
 
-				<div>
-					Change My Number: <input type="number" />
-				</div>
-			</div>
 
-			<div class="move-mouse-here">Move mouse here!</div>
-
-			<div class="click-here">Click here!</div>
-
-			<div class="scroll-here">Scroll here!</div>
 		</div>
 
 		<script>
-			var mus = new Mus();
-			mus.setPlaybackSpeed(mus.speed.SLOW);
+		let mus, range, ts;
+		function go() {
+			let ifr = document.querySelector("iframe").contentWindow;
+			range = document.getElementById('range');
+			mus = new Mus({
+				target: ifr,
+				onupdate: updateRange
+			});
+			setConsoleData();
+		};
 
-			var setTimePoint = function() {
-				releaseMus();
-				mus.setTimePoint(!mus.isTimePoint());
-				if (mus.isTimePoint()) {
-					document.getElementById("timePoint").innerHTML = "Disable time point";
-				} else {
-					document.getElementById("timePoint").innerHTML = "Enable time point";
-				}
-			};
-			var setConsoleData = function() {
-				var textarea = document.getElementById("console");
-				textarea.innerHTML = JSON.stringify(mus.getData());
-				textarea.scrollTop = textarea.scrollHeight;
-			};
-			var releaseMus = function() {
-				mus.release();
+		function setRange() {
+			range.max = mus.duration; //timeElapsed(true);
+			document.getElementById('ts').textContent = Math.round(range.max);
+		}
+
+		function updateRange(inst) {
+			range.value = inst.ms;
+		}
+
+		var setConsoleData = function() {
+			var textarea = document.getElementById("console");
+			textarea.innerHTML = JSON.stringify(mus.getData());
+			textarea.scrollTop = textarea.scrollHeight;
+		};
+		var toggleRecord = function() {
+			if (mus.isPlaying()) return;
+			if (!mus.isRecording()) {
+				document.getElementById("status").innerHTML = "Recording";
+				document.getElementById("recording").innerHTML = "Stop recording";
+				mus.record(setConsoleData);
+			} else {
+				document.getElementById("status").innerHTML = "Stand by";
+				document.getElementById("recording").innerHTML = "Start recording";
+				mus.stop(setRange);
 				setConsoleData();
-			};
-			var toggleRecord = function() {
-				if (mus.isPlaying()) return;
-				if (!mus.isRecording()) {
-					document.getElementById("status").innerHTML = "Recording";
-					document.getElementById("recording").innerHTML = "Stop recording";
-					mus.record(setConsoleData);
-				} else {
-					document.getElementById("status").innerHTML = "Stand by";
-					document.getElementById("recording").innerHTML = "Start recording";
-					mus.stop();
-					setConsoleData();
-				}
-			};
-			var play = function() {
-				if (mus.isRecording()) return;
-				if (mus.isPlaying()) {
+			}
+		};
+		var play = function() {
+			if (mus.isRecording()) return;
+			if (mus.isPlaying()) {
+				document.getElementById("play").innerHTML = "Play";
+				document.getElementById("status").innerHTML = "Stand by";
+				mus.pause();
+			} else {
+				document.getElementById("play").innerHTML = "Pause";
+				document.getElementById("status").innerHTML = "Playing";
+				mus.play(function() {
 					document.getElementById("play").innerHTML = "Play";
 					document.getElementById("status").innerHTML = "Stand by";
-					mus.pause();
-				} else {
-					document.getElementById("play").innerHTML = "Pause";
-					document.getElementById("status").innerHTML = "Playing";
-					mus.play(function() {
-						document.getElementById("play").innerHTML = "Play";
-						document.getElementById("status").innerHTML = "Stand by";
-					});
-				}
-			};
-			var setSpeed = function(speed) {
-				mus.setPlaybackSpeed(speed);
-				if (speed == mus.speed.SLOW) {
-					document.getElementById("speed").innerHTML = "Slow";
-				} else if (speed == mus.speed.NORMAL) {
-					document.getElementById("speed").innerHTML = "Normal";
-				} else {
-					document.getElementById("speed").innerHTML = "Fast";
-				}
-			};
-			setConsoleData();
+				});
+			}
+		};
 		</script>
 	</body>
 </html>
