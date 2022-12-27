@@ -22,6 +22,7 @@ This fork has made a number of changes to suit my own purposes:
 * Able to cue playback from a time (in milliseconds)
 * Optional callback after frames advance
 * Records scroll-offset during clicks to avoid drift during playback
+* Add play-only code + example
 
 ## Recording
 ```js
