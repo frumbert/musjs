@@ -138,7 +138,6 @@
 			this.frames = [];
 			this.startedAt = 0;
 			this.finishedAt = 0;
-			this.stop();
 			this.destroyCursor(this.target.document);
 			this.destroyClickSnapshot(this.target.document);
 		},
